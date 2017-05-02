@@ -1,0 +1,140 @@
+# Configuration for "master" branch.
+-
+  branches:
+    only:
+      - master
+  version: 1.0.{build}
+  pull_requests:
+    do_not_increment_build_number: false
+  clone_folder: c:\Projects\PSDevTools\Release
+  environment:
+    AppVeyorAuthorizationToken: 
+      secure: tYbZpB5IIB1kZg3vnb1hYZyJUI27locxtQHA6I7wrC8=
+    PSGalleryApiKey:
+      secure: 3uEUNJ8M0/Rdg1D2KT+XLjpWNr7QbTMO/8SjSXuAwbbeGW1UIfwLthZ0nzFSEpRl
+  init:
+  - ps: >-
+      Install-PackageProvider -Name NuGet -MinimumVersion '2.8.5.201' -Force;
+      
+      Import-PackageProvider NuGet -MinimumVersion '2.8.5.201';
+      
+      Set-PSRepository -Name PSGallery -InstallationPolicy Trusted;
+      
+      Install-Module -Name PSScriptAnalyzer;
+  build_script:
+  - ps: >-
+      $env:PSModulePath = "$env:PSModulePath;$($env:APPVEYOR_BUILD_FOLDER)";
+      
+      Import-Module PSDT.AppVeyor;
+      
+      Update-AVBuildRevision $env:AppVeyorAuthorizationToken;
+      
+      Update-AVBuildVersion -Verbose;
+      
+      Invoke-AVScriptAnalysis;
+  test: off
+  on_success:
+  - ps: >-
+
+      if($env:APPVEYOR_PULL_REQUEST_NUMBER) {
+        Write-Host "Pull request available ('$($env:APPVEYOR_PULL_REQUEST_NUMBER)'), PSGallery publish will be skipped.";
+        return;
+      }
+
+      Remove-Module PSDT.AppVeyor;
+
+      $modules = @("PSDT.App","PSDT.AppVeyor","PSDT.VisualStudio","PSDT.Http","PSDT.Tfs");
+      
+      $version = Get-Date -Format "yyMM.dd";
+      $currentVersion = ($env:APPVEYOR_BUILD_NUMBER).PadLeft(3,"0");
+      $targetVersion = "1.0.$($version)$($currentVersion)";
+      
+      Foreach($moduleName in $modules) {
+        $moduleManifest = "$($env:APPVEYOR_BUILD_FOLDER)\$moduleName\$moduleName.psd1";
+          
+        Update-AppveyorBuild -Version $targetVersion;
+        
+        (Get-Content $moduleManifest) | Foreach-Object {$_ -replace '.*ModuleVersion.*$', "    ModuleVersion = '$targetVersion'"} | Set-Content $moduleManifest -Force;
+
+        Write-Host "$moduleName updated, $((Get-Content -Path $moduleManifest | Where-Object { $_ -match ".*ModuleVersion.*$" }).Trim())";
+      }
+
+      if (Test-Path 'C:\Tools\NuGet3') { 
+        $nugetDir = 'C:\Tools\NuGet3';
+      } else { 
+        $nugetDir = 'C:\Tools\NuGet';
+      }
+      (New-Object Net.WebClient).DownloadFile('https://dist.nuget.org/win-x86-commandline/v3.3.0/nuget.exe', "$nugetDir\NuGet.exe");
+      
+      Foreach($moduleName in $modules) {
+        $moduleManifest = "$($env:APPVEYOR_BUILD_FOLDER)\$moduleName\$moduleName.psd1";
+        If(Get-Module $moduleName) {
+          Remove-Module $moduleName;  
+        }
+        # Import-Module $moduleName;
+        Publish-Module -Name $moduleName -NuGetApiKey $env:PSGalleryApiKey -Confirm:$false;
+      }
+  notifications:
+  - provider: Slack
+    incoming_webhook:
+      secure: mYT9gxzFOIwAPjonfFWB104O1Ucb5e3jP4PJ8pfZatZD47KtOC457UpcEUj3e2MjSlgRTVjuLD73rGOdxLuVBYM5w8Jt8VAUkZBNs1bZDEs=
+    template: >-
+      <{{buildUrl}}|PSDevTools Release Build {{buildVersion}} {{status}}>
+
+      Commit <{{commitUrl}}|{{commitId}}> by {{commitAuthor}} on {{commitDate}}
+    on_build_success: true
+    on_build_failure: true
+    on_build_status_changed: false
+
+# Configuration for all "feature-" branches.
+-
+  branches:
+    only:
+      - /feature-.*/
+      - /hotfix-.*/
+  version: 1.0.{build}
+  skip_tags: true
+  clone_folder: c:\Projects\PSDevTools\FBuild-Branches
+  environment:
+    AppVeyorAuthorizationToken: 
+      secure: tYbZpB5IIB1kZg3vnb1hYZyJUI27locxtQHA6I7wrC8=
+    PSGalleryApiKey:
+      secure: 3uEUNJ8M0/Rdg1D2KT+XLjpWNr7QbTMO/8SjSXuAwbbeGW1UIfwLthZ0nzFSEpRl
+  init:
+  - ps: >-
+      Install-PackageProvider -Name NuGet -MinimumVersion '2.8.5.201' -Force;
+      
+      Import-PackageProvider NuGet -MinimumVersion '2.8.5.201';
+      
+      Set-PSRepository -Name PSGallery -InstallationPolicy Trusted;
+      
+      Install-Module -Name PSScriptAnalyzer;
+  build_script:
+  - ps: >-
+      $env:PSModulePath = "$env:PSModulePath;$($env:APPVEYOR_BUILD_FOLDER)";
+      
+      Import-Module PSDT.AppVeyor;
+      
+      Update-AVBuildRevision $env:AppVeyorAuthorizationToken;
+      
+      Update-AVBuildVersion;
+      
+      Invoke-AVScriptAnalysis;
+  test: off
+  notifications:
+  - provider: Slack
+    incoming_webhook:
+      secure: mYT9gxzFOIwAPjonfFWB104O1Ucb5e3jP4PJ8pfZatZD47KtOC457UpcEUj3e2MjSlgRTVjuLD73rGOdxLuVBYM5w8Jt8VAUkZBNs1bZDEs=
+    template: >-
+      <{{buildUrl}}|PSDevTools Feature Build {{buildVersion}} {{status}}>
+
+      Commit <{{commitUrl}}|{{commitId}}> by {{commitAuthor}} on {{commitDate}}
+    on_build_success: true
+    on_build_failure: true
+    on_build_status_changed: false
+
+# "fall back" configuration for all other branches
+# no "branches" section defined
+# do not deploy at all
+-
+  configuration: Debug

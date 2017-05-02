@@ -1,0 +1,35 @@
+TOPIC
+        about_PSDT.AppVeyor
+        
+SHORT DESCRIPTION
+        PSDT.AppVeyor is a collection of PowerShell cmdlets, which helps managing builds and releases using AppVeyor: https://www.appveyor.com/.
+
+LONG DESCRIPTION
+        The PowerShell Developer Tools for AppVeyor simplifies accessing AppVeyor REST Api and managing build configurations.
+        
+        PSDT.AppVeyor is shipped with a built-in (nested) module, which is intended to encapsulate 
+        general PSDT application logic.
+         
+        The following functionality is supported:
+        
+        * Find the last build of a build definition (aka AppVeyor Project)
+        * Reset build number daily, in order to use it as revision number
+        * PSScriptAnalyzer logic encapsulation, to enable reusability over AppVeyor Projects
+        * Encapsulate logic, how we version and publish our packages during build
+        
+CONTRIBUTE
+
+        PSDT.AppVeyor is open source on GitHub:
+        
+        https://github.com/tauri-code/PSDevTools
+        
+        As you use the module and find what you believe to be are bugs,
+        please submit them to:
+        
+        https://github.com/tauri-code/PSDevTools/issues
+        
+        Better yet, fix the bug and submit a pull request.
+        
+SEE ALSO
+        
+
