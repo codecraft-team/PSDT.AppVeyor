@@ -145,3 +145,36 @@ Function Invoke-AVScriptAnalysis {
         $host.SetShouldExit(1);
     }
 }
+
+Invoke-PSDTPostBuild {
+    [CmdletBinding()]
+    Param (
+        [string]$Module
+    )
+
+    if($env:APPVEYOR_PULL_REQUEST_NUMBER) {
+        Write-Host "Pull request available ('$($env:APPVEYOR_PULL_REQUEST_NUMBER)'), PSGallery publish will be skipped.";
+        return;
+    }
+
+    $version = Get-Date -Format "yyMM.dd";
+    $currentVersion = ($env:APPVEYOR_BUILD_NUMBER).PadLeft(3,"0");
+    $targetVersion = "1.0.$($version)$($currentVersion)";
+    
+    $moduleManifest = "$($env:APPVEYOR_BUILD_FOLDER)\$Module.psd1";
+        
+    Update-AppveyorBuild -Version $targetVersion;
+
+    (Get-Content $moduleManifest) | Foreach-Object {$_ -replace '.*ModuleVersion.*$', "    ModuleVersion = '$targetVersion'"} | Set-Content $moduleManifest -Force;
+
+    Write-Host "$Module updated, $((Get-Content -Path $moduleManifest | Where-Object { $_ -match ".*ModuleVersion.*$" }).Trim())";
+
+    if (Test-Path 'C:\Tools\NuGet3') { 
+        $nugetDir = 'C:\Tools\NuGet3';
+    } else { 
+        $nugetDir = 'C:\Tools\NuGet';
+    }
+    (New-Object Net.WebClient).DownloadFile('https://dist.nuget.org/win-x86-commandline/v3.3.0/nuget.exe', "$nugetDir\NuGet.exe");
+
+    Publish-Module -Path "$($env:APPVEYOR_BUILD_FOLDER)" -NuGetApiKey $env:PSGalleryApiKey -Confirm:$false;
+}
