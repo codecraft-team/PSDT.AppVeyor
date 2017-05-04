@@ -146,7 +146,7 @@ Function Invoke-AVScriptAnalysis {
     }
 }
 
-Invoke-PSDTPostBuild {
+Function Invoke-PSDTPostBuild {
     [CmdletBinding()]
     Param (
         [string]$Module
