@@ -14,24 +14,10 @@
       secure: 3uEUNJ8M0/Rdg1D2KT+XLjpWNr7QbTMO/8SjSXuAwbbeGW1UIfwLthZ0nzFSEpRl
   init:
   - ps: >-
-      Install-PackageProvider -Name NuGet -MinimumVersion '2.8.5.201' -Force;
-      
-      Import-PackageProvider NuGet -MinimumVersion '2.8.5.201';
-      
-      Set-PSRepository -Name PSGallery -InstallationPolicy Trusted;
-      
-      Install-Module -Name PSScriptAnalyzer;
-
-      Install-Module -Name PSDT.AppVeyor;
+      Invoke-PSDTInitBuild;
   build_script:
   - ps: >-
-      Import-Module PSDT.AppVeyor;
-      
-      Update-AVBuildRevision $env:AppVeyorAuthorizationToken;
-      
-      Update-AVBuildVersion -Verbose;
-      
-      Invoke-AVScriptAnalysis;
+      Invoke-PSDTPreBuild;
   test: off
   on_success:
   - ps: >-
@@ -56,7 +42,7 @@
       - /hotfix-.*/
   version: 1.0.{build}
   skip_tags: true
-  clone_folder: c:\Projects\PSDevTools\FBuild-Branches
+  clone_folder: c:\Projects\PSDT.AppVeyor
   environment:
     AppVeyorAuthorizationToken: 
       secure: tYbZpB5IIB1kZg3vnb1hYZyJUI27locxtQHA6I7wrC8=
@@ -64,31 +50,17 @@
       secure: 3uEUNJ8M0/Rdg1D2KT+XLjpWNr7QbTMO/8SjSXuAwbbeGW1UIfwLthZ0nzFSEpRl
   init:
   - ps: >-
-      Install-PackageProvider -Name NuGet -MinimumVersion '2.8.5.201' -Force;
-      
-      Import-PackageProvider NuGet -MinimumVersion '2.8.5.201';
-      
-      Set-PSRepository -Name PSGallery -InstallationPolicy Trusted;
-      
-      Install-Module -Name PSScriptAnalyzer;
+      Invoke-PSDTInitBuild;
   build_script:
   - ps: >-
-      $env:PSModulePath = "$env:PSModulePath;$($env:APPVEYOR_BUILD_FOLDER)";
-      
-      Import-Module PSDT.AppVeyor;
-      
-      Update-AVBuildRevision $env:AppVeyorAuthorizationToken;
-      
-      Update-AVBuildVersion;
-      
-      Invoke-AVScriptAnalysis;
+      Invoke-PSDTPreBuild;
   test: off
   notifications:
   - provider: Slack
     incoming_webhook:
-      secure: mYT9gxzFOIwAPjonfFWB104O1Ucb5e3jP4PJ8pfZatZD47KtOC457UpcEUj3e2MjSlgRTVjuLD73rGOdxLuVBYM5w8Jt8VAUkZBNs1bZDEs=
+      secure: mYT9gxzFOIwAPjonfFWB104O1Ucb5e3jP4PJ8pfZatbEzUuVnAdBMI9qRnCHpOvw3a6EY1pjac3uC1QAV6d84t55OLxA99lx5qPX+GZvTPo=
     template: >-
-      <{{buildUrl}}|PSDevTools Feature Build {{buildVersion}} {{status}}>
+      <{{buildUrl}}|PSDT.AppVeyor Feature/Hotfix Build {{buildVersion}} {{status}}>
 
       Commit <{{commitUrl}}|{{commitId}}> by {{commitAuthor}} on {{commitDate}}
     on_build_success: true
