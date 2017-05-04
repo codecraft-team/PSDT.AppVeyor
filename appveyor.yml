@@ -36,8 +36,6 @@
   on_success:
   - ps: >-
 
-    # Invoke-PSDTPostBuild -Module PSDT.AppVeyor;
-
     $Module = "PSDT.AppVeyor";
 
     if($env:APPVEYOR_PULL_REQUEST_NUMBER) {
