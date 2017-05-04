@@ -21,10 +21,10 @@
       Set-PSRepository -Name PSGallery -InstallationPolicy Trusted;
       
       Install-Module -Name PSScriptAnalyzer;
+
+      Install-Module -Name PSDT.AppVeyor;
   build_script:
   - ps: >-
-      $env:PSModulePath = "$env:PSModulePath;$($env:APPVEYOR_BUILD_FOLDER)";
-      
       Import-Module PSDT.AppVeyor;
       
       Update-AVBuildRevision $env:AppVeyorAuthorizationToken;
@@ -41,9 +41,9 @@
   notifications:
   - provider: Slack
     incoming_webhook:
-      secure: mYT9gxzFOIwAPjonfFWB104O1Ucb5e3jP4PJ8pfZatZD47KtOC457UpcEUj3e2MjSlgRTVjuLD73rGOdxLuVBYM5w8Jt8VAUkZBNs1bZDEs=
+      secure: mYT9gxzFOIwAPjonfFWB104O1Ucb5e3jP4PJ8pfZatbEzUuVnAdBMI9qRnCHpOvw3a6EY1pjac3uC1QAV6d84t55OLxA99lx5qPX+GZvTPo=
     template: >-
-      <{{buildUrl}}|PSDevTools Release Build {{buildVersion}} {{status}}>
+      <{{buildUrl}}|PSDT.AppVeyor Release Build {{buildVersion}} {{status}}>
 
       Commit <{{commitUrl}}|{{commitId}}> by {{commitAuthor}} on {{commitDate}}
     on_build_success: true
