@@ -152,15 +152,7 @@ Function Invoke-PSDTInitBuild {
 
     )
 
-    Install-PackageProvider -Name NuGet -MinimumVersion '2.8.5.201' -Force;
-      
-    Import-PackageProvider NuGet -MinimumVersion '2.8.5.201';
-    
-    Set-PSRepository -Name PSGallery -InstallationPolicy Trusted;
-    
     Install-Module -Name PSScriptAnalyzer;
-
-    Install-Module -Name PSDT.AppVeyor;
 }
 
 Function Invoke-PSDTPreBuild {

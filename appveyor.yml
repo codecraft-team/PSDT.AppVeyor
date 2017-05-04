@@ -20,18 +20,10 @@
       
       Set-PSRepository -Name PSGallery -InstallationPolicy Trusted;
       
-      Install-Module -Name PSScriptAnalyzer;
-
       Install-Module -Name PSDT.AppVeyor;
   build_script:
   - ps: >-
-      Import-Module PSDT.AppVeyor;
-      
-      Update-AVBuildRevision $env:AppVeyorAuthorizationToken;
-      
-      Update-AVBuildVersion -Verbose;
-      
-      Invoke-AVScriptAnalysis;
+      Invoke-PSDTPreBuild;
   test: off
   on_success:
   - ps: >-
