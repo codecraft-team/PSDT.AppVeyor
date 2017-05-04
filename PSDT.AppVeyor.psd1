@@ -6,5 +6,5 @@
     CompanyName = 'Tauri-Code'
     Copyright = '(c) 2017 Tauri-Code. All rights reserved.'
     Description = 'A collection of App Veyor related PowerShell developer tools.'
-    FunctionsToExport = @("Get-AVProject","Get-AVBuild","Get-AVRestHeader","Test-AVBuildToday","Update-AVBuild","Update-AVBuildRevision","Update-AVBuildVersion","Invoke-AVScriptAnalysis")
+    FunctionsToExport = @("Get-AVProject","Get-AVBuild","Get-AVRestHeader","Test-AVBuildToday","Update-AVBuild","Update-AVBuildRevision","Update-AVBuildVersion","Invoke-AVScriptAnalysis","Invoke-PSDTPostBuild")
 }
