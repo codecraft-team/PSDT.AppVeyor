@@ -54,7 +54,11 @@
       secure: 3uEUNJ8M0/Rdg1D2KT+XLjpWNr7QbTMO/8SjSXuAwbbeGW1UIfwLthZ0nzFSEpRl
   init:
   - ps: >-
-      Invoke-PSDTInitBuild;
+      Install-PackageProvider -Name NuGet -MinimumVersion '2.8.5.201' -Force;
+      Import-PackageProvider NuGet -MinimumVersion '2.8.5.201';
+      Set-PSRepository -Name PSGallery -InstallationPolicy Trusted;
+      Install-Module -Name PSScriptAnalyzer;
+      Install-Module -Name PSDT.AppVeyor;
   build_script:
   - ps: >-
       Invoke-PSDTPreBuild;
