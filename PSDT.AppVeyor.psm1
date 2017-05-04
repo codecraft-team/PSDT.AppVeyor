@@ -146,15 +146,6 @@ Function Invoke-AVScriptAnalysis {
     }
 }
 
-Function Invoke-PSDTInitBuild {
-    [CmdletBinding()]
-    Param (
-
-    )
-
-    Install-Module -Name PSScriptAnalyzer;
-}
-
 Function Invoke-PSDTPreBuild {
     [CmdletBinding()]
     Param (
