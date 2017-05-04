@@ -146,6 +146,38 @@ Function Invoke-AVScriptAnalysis {
     }
 }
 
+Function Invoke-PSDTInitBuild {
+    [CmdletBinding()]
+    Param (
+
+    )
+
+    Install-PackageProvider -Name NuGet -MinimumVersion '2.8.5.201' -Force;
+      
+    Import-PackageProvider NuGet -MinimumVersion '2.8.5.201';
+    
+    Set-PSRepository -Name PSGallery -InstallationPolicy Trusted;
+    
+    Install-Module -Name PSScriptAnalyzer;
+
+    Install-Module -Name PSDT.AppVeyor;
+}
+
+Function Invoke-PSDTPreBuild {
+    [CmdletBinding()]
+    Param (
+
+    )
+
+    Import-Module PSDT.AppVeyor;
+    
+    Update-AVBuildRevision $env:AppVeyorAuthorizationToken;
+    
+    Update-AVBuildVersion -Verbose;
+    
+    Invoke-AVScriptAnalysis;
+}
+
 Function Invoke-PSDTPostBuild {
     [CmdletBinding()]
     Param (
