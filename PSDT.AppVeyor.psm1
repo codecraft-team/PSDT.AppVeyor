@@ -16,20 +16,20 @@ class AppVeyorBuildId : AppVeyorId {
     }
 }
 
-Function Get-AVProject {
+function Get-AVProject {
     [CmdletBinding()]
-    Param (
-        [Parameter(Mandatory=$True,ValueFromPipeline=$True)]
+    param (
+        [parameter(Mandatory=$True,ValueFromPipeline=$True)]
         [AppVeyorId]$AppVeyorId
     )
 
     return Invoke-RestMethod -Uri 'https://ci.appveyor.com/api/projects' -Headers (Get-AVRestHeader $AppVeyorId.AuthorizationToken) -Method Get;
 }
 
-Function Get-AVBuild {
+function Get-AVBuild {
     [CmdletBinding()]
-    Param (
-        [Parameter(Mandatory=$True,ValueFromPipeline=$True)]
+    param (
+        [parameter(Mandatory=$True,ValueFromPipeline=$True)]
         [AppVeyorBuildId]$AppVeyorBuildId
     )
 
@@ -43,20 +43,20 @@ Function Get-AVBuild {
     return $lastBuild;
 }
 
-Function Get-AVRestHeader {
+function Get-AVRestHeader {
     [CmdletBinding()]
-    Param (
-        [Parameter(Mandatory=$True,ValueFromPipeline=$True)]
+    param (
+        [parameter(Mandatory=$True,ValueFromPipeline=$True)]
         [string]$AuthorizationToken
     )
     
     return @{"Authorization" = "Bearer $AuthorizationToken";"Content-type" = "application/json"};
 }
 
-Function Test-AVBuildToday {
+function Test-AVBuildToday {
     [CmdletBinding()]
-    Param (
-        [Parameter(Mandatory=$True,ValueFromPipeline=$True)]
+    param (
+        [parameter(Mandatory=$True,ValueFromPipeline=$True)]
         $LastBuild
     )
 
@@ -75,12 +75,12 @@ Function Test-AVBuildToday {
     return $isLastBuildFromToday;
 }
 
-Function Update-AVBuild {
+function Update-AVBuild {
     [CmdletBinding()]
-    Param (
-        [Parameter(Mandatory=$True,ValueFromPipeline=$True)]
+    param (
+        [parameter(Mandatory=$True,ValueFromPipeline=$True)]
         [AppVeyorBuildId]$AppVeyorBuildId,
-        [Parameter(Mandatory=$True,ValueFromPipeline=$True)]
+        [parameter(Mandatory=$True,ValueFromPipeline=$True)]
         [int]$NextBuildNumber
     )
 
@@ -92,10 +92,10 @@ Function Update-AVBuild {
     return Invoke-RestMethod -Method Put -Uri $url -Body $requestBody -Headers (Get-AVRestHeader $AppVeyorBuildId.AuthorizationToken);
 }
 
-Function Update-AVBuildRevision {
+function Update-AVBuildRevision {
     [CmdletBinding()]
-    Param (
-        [Parameter(Mandatory=$True)]
+    param (
+        [parameter(Mandatory=$True)]
         [string]$AuthorizationToken,
         [string]$AccountName = $env:APPVEYOR_ACCOUNT_NAME,
         [string]$ProjectSlug = $env:APPVEYOR_PROJECT_SLUG
@@ -112,11 +112,7 @@ Function Update-AVBuildRevision {
     }
 }
 
-Function Update-AVBuildVersion {
-    [CmdletBinding()]
-    Param (
-    )
-
+function Update-AVBuildVersion {
     $version = Get-Date -Format "yyMM.dd";
     $currentVersion = $($env:APPVEYOR_BUILD_NUMBER).PadLeft(3,"0");
     $targetVersion = "1.0.$version$currentVersion";
@@ -126,9 +122,9 @@ Function Update-AVBuildVersion {
     Update-AppveyorBuild -Version $targetVersion;
 }
 
-Function Invoke-AVScriptAnalysis {
+function Invoke-AVScriptAnalysis {
     [CmdletBinding()]
-    Param (
+    param (
         [string]$Path = $env:APPVEYOR_BUILD_FOLDER,
         [string]$Severity = "Error"
     )
@@ -146,50 +142,63 @@ Function Invoke-AVScriptAnalysis {
     }
 }
 
-Function Invoke-PSDTPreBuild {
-    [CmdletBinding()]
-    Param (
-
-    )
-
-    Import-Module PSDT.AppVeyor;
+function Invoke-PSDTPreBuild {
+    try {
+        Import-Module PSDT.AppVeyor;
     
-    Update-AVBuildRevision $env:AppVeyorAuthorizationToken;
-    
-    Update-AVBuildVersion -Verbose;
-    
-    Invoke-AVScriptAnalysis;
+        if (-not (Test-PullRequest)) {
+            Update-AVBuildRevision $env:AppVeyorAuthorizationToken;
+        }
+        
+        Update-AVBuildVersion -Verbose;
+        
+        Invoke-AVScriptAnalysis;
+    }
+    catch {
+        Write-Output $_;
+        $host.SetShouldExit(1);
+    }
 }
 
-Function Invoke-PSDTPostBuild {
+function Invoke-PSDTPostBuild {
     [CmdletBinding()]
-    Param (
+    param (
         [string]$Module
     )
 
-    if($env:APPVEYOR_PULL_REQUEST_NUMBER) {
-        Write-Host "Pull request available ('$($env:APPVEYOR_PULL_REQUEST_NUMBER)'), PSGallery publish will be skipped.";
-        return;
-    }
-
-    $version = Get-Date -Format "yyMM.dd";
-    $currentVersion = ($env:APPVEYOR_BUILD_NUMBER).PadLeft(3,"0");
-    $targetVersion = "1.0.$($version)$($currentVersion)";
+    try {
+        if (Test-PullRequest) {
+            Write-Host "Pull request available ('$($env:APPVEYOR_PULL_REQUEST_NUMBER)'), PSGallery publish will be skipped.";
+            return;
+        }
     
-    $moduleManifest = "$($env:APPVEYOR_BUILD_FOLDER)\$Module.psd1";
+        $version = Get-Date -Format "yyMM.dd";
+        $currentVersion = ($env:APPVEYOR_BUILD_NUMBER).PadLeft(3,"0");
+        $targetVersion = "1.0.$($version)$($currentVersion)";
         
-    Update-AppveyorBuild -Version $targetVersion;
-
-    (Get-Content $moduleManifest) | Foreach-Object {$_ -replace '.*ModuleVersion.*$', "    ModuleVersion = '$targetVersion'"} | Set-Content $moduleManifest -Force;
-
-    Write-Host "$Module updated, $((Get-Content -Path $moduleManifest | Where-Object { $_ -match ".*ModuleVersion.*$" }).Trim())";
-
-    if (Test-Path 'C:\Tools\NuGet3') { 
-        $nugetDir = 'C:\Tools\NuGet3';
-    } else { 
-        $nugetDir = 'C:\Tools\NuGet';
+        $moduleManifest = "$($env:APPVEYOR_BUILD_FOLDER)\$Module.psd1";
+            
+        Update-AppveyorBuild -Version $targetVersion;
+    
+        (Get-Content $moduleManifest) | Foreach-Object {$_ -replace '.*ModuleVersion.*$', "    ModuleVersion = '$targetVersion'"} | Set-Content $moduleManifest -Force;
+    
+        Write-Host "$Module updated, $((Get-Content -Path $moduleManifest | Where-Object { $_ -match ".*ModuleVersion.*$" }).Trim())";
+    
+        if (Test-Path 'C:\Tools\NuGet3') { 
+            $nugetDir = 'C:\Tools\NuGet3';
+        } else { 
+            $nugetDir = 'C:\Tools\NuGet';
+        }
+        (New-Object Net.WebClient).DownloadFile('https://dist.nuget.org/win-x86-commandline/v3.3.0/nuget.exe', "$nugetDir\NuGet.exe");
+    
+        Publish-Module -Path "$($env:APPVEYOR_BUILD_FOLDER)" -NuGetApiKey $env:PSGalleryApiKey -Confirm:$false;
+    } catch {
+        Write-Output $_;
+        $host.SetShouldExit(1);
     }
-    (New-Object Net.WebClient).DownloadFile('https://dist.nuget.org/win-x86-commandline/v3.3.0/nuget.exe', "$nugetDir\NuGet.exe");
+}
 
-    Publish-Module -Path "$($env:APPVEYOR_BUILD_FOLDER)" -NuGetApiKey $env:PSGalleryApiKey -Confirm:$false;
+function Test-PullRequest {
+    $isPullRequest = [bool]$env:APPVEYOR_PULL_REQUEST_NUMBER;
+    return $isPullRequest;
 }
