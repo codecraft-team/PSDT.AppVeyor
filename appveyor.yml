@@ -9,9 +9,9 @@
   clone_folder: c:\Projects\PSDT.AppVeyor
   environment:
     AppVeyorAuthorizationToken: 
-      secure: tYbZpB5IIB1kZg3vnb1hYZyJUI27locxtQHA6I7wrC8=
+      secure: OrebyRkAy4ednvuV5k7tIRiznarnvdR9uuzRBmfLvUM=
     PSGalleryApiKey:
-      secure: 3uEUNJ8M0/Rdg1D2KT+XLjpWNr7QbTMO/8SjSXuAwbbeGW1UIfwLthZ0nzFSEpRl
+      secure: OjHPlCLymuPqBe7wD9IQVRbWWJtTjmjUaT4gN/Rqyp7hdaFtv1NQcxGC/FWqlM9t
   init:
   - ps: >-
       Install-PackageProvider -Name NuGet -MinimumVersion '2.8.5.201' -Force;
@@ -49,9 +49,8 @@
   clone_folder: c:\Projects\PSDT.AppVeyor
   environment:
     AppVeyorAuthorizationToken: 
-      secure: tYbZpB5IIB1kZg3vnb1hYZyJUI27locxtQHA6I7wrC8=
-    PSGalleryApiKey:
-      secure: 3uEUNJ8M0/Rdg1D2KT+XLjpWNr7QbTMO/8SjSXuAwbbeGW1UIfwLthZ0nzFSEpRl
+      secure: OrebyRkAy4ednvuV5k7tIRiznarnvdR9uuzRBmfLvUM=
+    PSGalleryApiKey: 
   init:
   - ps: >-
       Install-PackageProvider -Name NuGet -MinimumVersion '2.8.5.201' -Force;
