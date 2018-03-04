@@ -29,7 +29,7 @@
   notifications:
   - provider: Slack
     incoming_webhook:
-      secure: mYT9gxzFOIwAPjonfFWB104O1Ucb5e3jP4PJ8pfZatbEzUuVnAdBMI9qRnCHpOvw3a6EY1pjac3uC1QAV6d84t55OLxA99lx5qPX+GZvTPo=
+      secure: F+obg+NDF6+5yF54qZZj7x39t7gUd3oNO1mFHiPnuNgGJL1wWSw/3lxT2jnd4Yi66BssEGOkx/IxSA7K/dkOc7xC1eo/6Z5Urb5NMF9+UFA=
     template: >-
       <{{buildUrl}}|PSDT.AppVeyor Release Build {{buildVersion}} {{status}}>
 
@@ -65,7 +65,7 @@
   notifications:
   - provider: Slack
     incoming_webhook:
-      secure: mYT9gxzFOIwAPjonfFWB104O1Ucb5e3jP4PJ8pfZatbEzUuVnAdBMI9qRnCHpOvw3a6EY1pjac3uC1QAV6d84t55OLxA99lx5qPX+GZvTPo=
+      secure: F+obg+NDF6+5yF54qZZj7x39t7gUd3oNO1mFHiPnuNgGJL1wWSw/3lxT2jnd4Yi66BssEGOkx/IxSA7K/dkOc7xC1eo/6Z5Urb5NMF9+UFA=
     template: >-
       <{{buildUrl}}|PSDT.AppVeyor Feature/Hotfix Build {{buildVersion}} {{status}}>
 
