@@ -1,6 +1,6 @@
 # PSDT.AppVeyor
 
-[![Build status](https://ci.appveyor.com/api/projects/status/8ce65yuh9ilg7010/branch/master?svg=true&passingText=Build%20Passing&failingText=Build%20Failing&pendingText=Build%20Pending)](https://ci.appveyor.com/project/TauriCode/PSDT-AppVeyor)
+[![Build status](https://ci.appveyor.com/api/projects/status/7g516a9qeeu9ah7h/branch/master?svg=true&passingText=Build%20Passing&failingText=Build%20Failing&pendingText=Build%20Pending)](https://ci.appveyor.com/project/codecraft-team/PSDT.AppVeyor)
 
 A collection of PowerShell cmdlets, which encapsulates AppVeyor related tasks and helps to create builds for PowerShell modules.
 
